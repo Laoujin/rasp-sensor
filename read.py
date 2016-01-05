@@ -1,6 +1,7 @@
 import os
 import glob
 import time
+import requests
 
 # Example output: `cat w1_slave`
 # 57 01 4b 46 7f ff 09 10 c7 : crc=c7 YES
@@ -9,6 +10,7 @@ import time
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
 
+expressjsUrl = '192.168.1.24'
 base_dir = '/sys/bus/w1/devices/'
 device_folder = glob.glob(base_dir + '28*')[0]
 device_file = device_folder + '/w1_slave'
@@ -28,9 +30,13 @@ def read_temp():
 	equals_pos = lines[1].find('t=')
 	if equals_pos != -1:
 		temp_string = lines[1][equals_pos+2:]
-		temp_c = float(temp_string) / 1000.0
-		return temp_c
+		temperature = float(temp_string) / 1000.0
+		return temperature
 
-while True:
-	print(read_temp())
-	time.sleep(1)
+def post_temp(temperature):
+	r = requests.post("http://" + expressjsUrl, data={'@temp': temperature})
+	return r.status_code, r.reason, r.text
+
+# while True:
+print(post_temp(read_temp()))
+time.sleep(1)
