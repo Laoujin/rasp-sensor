@@ -12,6 +12,7 @@ import requests
 # -> configuration in config file
 # -> error handling for post
 # -> backup on failure: add current time (GMT) and write to file
+# -> send email if not posted for 1 hour
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -45,4 +46,4 @@ def post_temp(temperature):
 
 while True:
 	print(post_temp(read_temp()))
-	time.sleep(1)
+	time.sleep(60)
