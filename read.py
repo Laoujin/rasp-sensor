@@ -49,7 +49,7 @@ def post_temp(temperature):
 
 def write_temp(temperature):
 	with open('offline_temps.txt', 'a') as f:
-		f.write(datetime.utcnow().isoformat() + ';' + str(temperature))
+		f.write(datetime.utcnow().isoformat() + ';' + str(temperature) + '\n')
 
 while True:
 	temp = read_temp()
