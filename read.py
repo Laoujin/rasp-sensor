@@ -43,6 +43,7 @@ def post_temp(temperature):
 	try:
 		r = requests.post('http://' + expressjsUrl + '/api/temp', json={'temp': temperature})
 	except requests.exceptions.RequestException as e:
+		print e
 		return False
 	return True
 
