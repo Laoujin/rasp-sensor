@@ -2,6 +2,7 @@ import os
 import glob
 import time
 import requests
+from datetime import datetime
 
 # Example output: `cat w1_slave`
 # 57 01 4b 46 7f ff 09 10 c7 : crc=c7 YES
@@ -10,9 +11,8 @@ import requests
 # TODO:
 # -> put in class, unit test it
 # -> configuration in config file
-# -> error handling for post
-# -> backup on failure: add current time (GMT) and write to file
 # -> send email if not posted for 1 hour
+# -> on startup check for offline_temps and post them
 
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -23,9 +23,8 @@ device_folder = glob.glob(base_dir + '28*')[0]
 device_file = device_folder + '/w1_slave'
 
 def read_temp_raw():
-	f = open(device_file, 'r')
-	lines = f.readlines()
-	f.close()
+	with open(device_file, 'r') as f:
+		lines = f.readlines()
 	return lines
 
 def read_temp():
@@ -41,9 +40,19 @@ def read_temp():
 		return temperature
 
 def post_temp(temperature):
-	r = requests.post("http://" + expressjsUrl + '/api/temp', json={'temp': temperature})
-	return r.status_code, r.reason, r.text
+	try:
+		r = requests.post('http://' + expressjsUrl + '/api/temp', json={'temp': temperature})
+	except requests.exceptions.RequestException as e:
+		return False
+	return True
+
+def write_temp(temperature):
+	with open('offline_temps.txt', 'a') as f:
+		f.write(datetime.utcnow().isoformat() + ';' + str(temperature))
 
 while True:
-	print(post_temp(read_temp()))
-	time.sleep(60)
+	temp = read_temp()
+	if not post_temp(temp):
+		write_temp(temp)
+
+	time.sleep(1)
