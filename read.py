@@ -40,9 +40,9 @@ def read_temp():
 		return temperature
 
 def post_temp(temperature):
-	r = requests.post("http://" + expressjsUrl + '/api/temp', data={'@temp': temperature})
+	r = requests.post("http://" + expressjsUrl + '/api/temp', json={'temp': temperature})
 	return r.status_code, r.reason, r.text
 
-# while True:
-print(post_temp(read_temp()))
-time.sleep(1)
+while True:
+	print(post_temp(read_temp()))
+	time.sleep(1)
