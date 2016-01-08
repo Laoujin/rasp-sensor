@@ -55,5 +55,8 @@ while True:
 	temp = read_temp()
 	if not post_temp(temp):
 		write_temp(temp)
+		print '[' + str(datetime.now().time()) + '] offline: ' + str(temp)
+	else:
+		print '[' + str(datetime.now().time()) + ']posted: ' + str(temp)
 
-	time.sleep(1)
+	time.sleep(5)
